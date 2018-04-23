@@ -7,7 +7,7 @@ import { AccountScreen, LoginScreen } from 'edge-login-ui-react'
 import React, { Component } from 'react'
 import { render } from 'react-dom'
 
-import { getLocalUsers, getWalletInfos } from './frame-selectors.js'
+import { handleClose, handleError, handleLogin } from './frame-actions.js'
 import type { FrameState } from './frame-state.js'
 
 type ViewProps = {
@@ -23,29 +23,9 @@ class View extends Component<ViewProps> {
     callbacks: {}
   }
 
-  onClose = () => {
-    this.props.state.page = ''
-    this.forceUpdate()
-    this.props.state.clientDispatch({ type: 'close' })
-  }
-
-  onError = (e: Error) => {
-    this.props.state.clientDispatch({ type: 'error', payload: e })
-  }
-
-  onLogin = async (account: EdgeAccount) => {
-    const { state } = this.props
-    const accountId = `account${state.nextAccountId++}`
-    state.accounts[accountId] = account
-    const username = account.username
-    const localUsers = await getLocalUsers(state)
-    const walletInfos = getWalletInfos(state, accountId)
-
-    return state.clientDispatch({
-      type: 'login',
-      payload: { accountId, username, localUsers, walletInfos }
-    })
-  }
+  onClose = () => handleClose(this.props.state)
+  onError = (e: Error) => handleError(this.props.state, e)
+  onLogin = (account: EdgeAccount) => handleLogin(this.props.state, account)
 
   render () {
     const { state } = this.props

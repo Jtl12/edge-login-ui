@@ -13,6 +13,7 @@ import type {
   FrameMessage,
   PostRobotEvent
 } from '../protocol.js'
+import { frameDispatch } from './frame-actions.js'
 import {
   getLocalUsers,
   getWalletInfos,
@@ -42,38 +43,6 @@ export type FrameState = {
 
   // Frame callbacks:
   clientDispatch: ClientDispatch
-}
-
-function frameDispatch (state: FrameState, message: FrameMessage) {
-  switch (message.type) {
-    case 'logout': {
-      const { accountId } = message.payload
-      if (!state.accounts[accountId]) throw new Error('Invalid accountId')
-
-      state.accounts[accountId].logout()
-      delete state.accounts[accountId]
-      return
-    }
-
-    case 'open-login-window': {
-      state.page = 'login'
-      state.pageAccount = null
-      updateView(state)
-      return
-    }
-
-    case 'open-manage-window': {
-      const { accountId } = message.payload
-      if (!state.accounts[accountId]) throw new Error('Invalid accountId')
-
-      state.page = 'account'
-      state.pageAccount = state.accounts[accountId]
-      updateView(state)
-      return
-    }
-  }
-
-  throw new Error('Unknown frame message')
 }
 
 /**
