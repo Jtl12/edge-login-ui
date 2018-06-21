@@ -19,8 +19,16 @@ export const loginWithPassword = (username, password, callback) => {
     dispatch(openLoading())
     setTimeout(() => {
       const context = window.abcui.abcuiContext
-      context.loginWithPassword(username, password, null, (error, account) => {
-        if (error) {
+      const accountOptions = window.abcui.accountOptions
+      context
+        .loginWithPassword(username, password, accountOptions)
+        .then(account => {
+          localStorage.setItem('lastUser', username)
+          dispatch(userLogin(account))
+          dispatch(closeLoading())
+          callback(null, account)
+        })
+        .catch(error => {
           dispatch(closeLoading())
           if (error.wait > 0) {
             const currentWaitSpan = error.wait
@@ -28,14 +36,7 @@ export const loginWithPassword = (username, password, callback) => {
             enableTimer(reEnableLoginTime, 'password', dispatch)
           }
           return callback(t(errorHandling(error.name)), null)
-        }
-        if (!error) {
-          localStorage.setItem('lastUser', username)
-          dispatch(userLogin(account))
-          dispatch(closeLoading())
-          callback(null, account)
-        }
-      })
+        })
     }, 300)
   }
 }
@@ -48,23 +49,24 @@ export const loginWithPin = (username, pin, callback) => {
 
     setTimeout(() => {
       const context = window.abcui.abcuiContext
-      context.loginWithPIN(username, pin, undefined, (error, account) => {
-        dispatch(closeLoading())
-        if (error) {
+      const accountOptions = window.abcui.accountOptions
+      context
+        .loginWithPIN(username, pin, accountOptions)
+        .then(account => {
+          dispatch(closeLoading())
+          localStorage.setItem('lastUser', username)
+          dispatch(userLogin(account))
+          return callback(null, account)
+        })
+        .catch(error => {
+          dispatch(closeLoading())
           if (error.wait > 0) {
             const currentWaitSpan = error.wait
             const reEnableLoginTime = Date.now() + currentWaitSpan * 1000
             enableTimer(reEnableLoginTime, 'pin', dispatch)
           }
           return callback(t('server_error_bad_pin'), null)
-        }
-
-        if (!error) {
-          localStorage.setItem('lastUser', username)
-          dispatch(userLogin(account))
-          return callback(null, account)
-        }
-      })
+        })
     }, 300)
   }
 }
