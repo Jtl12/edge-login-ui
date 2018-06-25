@@ -83,5 +83,7 @@ export type EdgeUiCurrencyWallet = {
   address: string,
   balances: {
     [currencyCode: string]: string
-  }
+  },
+
+  simpleSpend(address: string, amount: string): Promise<mixed>
 }

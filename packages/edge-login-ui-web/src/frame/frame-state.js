@@ -22,7 +22,8 @@ import { frameDispatch } from './frame-actions.js'
 import {
   getLocalUsers,
   getWalletInfos,
-  signEthereumTransaction
+  signEthereumTransaction,
+  simpleSpend
 } from './frame-selectors.js'
 import { updateView } from './View.js'
 
@@ -145,6 +146,15 @@ export function awaitConnection () {
           return Promise.resolve(
             signEthereumTransaction(state, accountId, walletId, transaction)
           )
+        },
+
+        simpleSpend (
+          accountId: string,
+          walletId: string,
+          address: string,
+          amount: string
+        ) {
+          return simpleSpend(state, accountId, walletId, address, amount)
         }
       }
     }

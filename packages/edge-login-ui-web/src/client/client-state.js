@@ -13,6 +13,7 @@ import type {
   FrameCreateWallet,
   FrameMessage,
   FrameSignEthereumTransaction,
+  FrameSimpleSpend,
   PostRobotEvent
 } from '../protocol.js'
 import { makeAccountApi } from './client-account.js'
@@ -46,7 +47,8 @@ export type ClientState = {
   createCurrencyWallet: FrameCreateCurrencyWallet,
   createWallet: FrameCreateWallet,
   frameDispatch: (message: FrameMessage) => Promise<mixed>,
-  signEthereumTransaction: FrameSignEthereumTransaction
+  signEthereumTransaction: FrameSignEthereumTransaction,
+  simpleSpend: FrameSimpleSpend
 }
 
 /**
@@ -143,6 +145,7 @@ export function makeClientState (
         createCurrencyWallet: reply.data.createCurrencyWallet,
         createWallet: reply.data.createWallet,
         signEthereumTransaction: reply.data.signEthereumTransaction,
+        simpleSpend: reply.data.simpleSpend,
         frame,
         frameDispatch,
         localUsers: reply.data.localUsers,

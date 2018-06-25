@@ -104,3 +104,31 @@ export function signEthereumTransaction (
   tx.sign(hexToBuffer(walletInfo.keys.ethereumKey))
   return tx.serialize().toString('hex')
 }
+
+/**
+ * Sends money from a wallet.
+ */
+export function simpleSpend (
+  state: FrameState,
+  accountId: string,
+  walletId: string,
+  address: string,
+  amount: string
+): Promise<mixed> {
+  const account = state.accounts[accountId]
+  if (!account) throw new Error(`Invalid accountId ${accountId}`)
+  const wallet = account.currencyWallets[walletId]
+  if (!wallet) throw new Error(`Invalid walletId ${walletId}`)
+
+  return wallet
+    .makeSpend({
+      spendTargets: [{ publicAddress: address, nativeAmount: amount }]
+    })
+    .then(tx => wallet.signTx(tx))
+    .then(tx => {
+      console.log('Sending:', tx)
+      wallet.broadcastTx(tx)
+      wallet.saveTx(tx)
+      return tx
+    })
+}

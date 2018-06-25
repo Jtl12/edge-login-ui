@@ -9,11 +9,29 @@ function WalletInfo (props: { currencyWallet: EdgeUiCurrencyWallet | void }) {
   const { currencyWallet } = props
   if (!currencyWallet) return null
 
+  function doSpend () {
+    const addressInput: any = document.getElementById('address')
+    const amountInput: any = document.getElementById('amount')
+    if (!addressInput || !amountInput) return
+
+    currencyWallet.simpleSpend(addressInput.value, amountInput.value)
+  }
+
   return (
     <div>
       <p>Address: {currencyWallet.address}</p>
       <QRCode value={currencyWallet.address} />
       <p>ETH balance: {currencyWallet.balances['ETH']} </p>
+      <h2>Spend</h2>
+      <p>
+        <label>Address:</label>
+        <input id="address" type="text" />
+      </p>
+      <p>
+        <label>Amount:</label>
+        <input id="amount" type="text" />
+      </p>
+      <button onClick={doSpend}>Send</button>
     </div>
   )
 }

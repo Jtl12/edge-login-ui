@@ -73,7 +73,11 @@ export function makeAccountApi (
       for (const walletId of Object.keys(account.currencyWallets)) {
         out[walletId] = {
           address: account.currencyWallets[walletId].address,
-          balances: account.currencyWallets[walletId].balances
+          balances: account.currencyWallets[walletId].balances,
+
+          simpleSpend (address: string, amount: string) {
+            return state.simpleSpend(accountId, walletId, address, amount)
+          }
         }
       }
       return out
