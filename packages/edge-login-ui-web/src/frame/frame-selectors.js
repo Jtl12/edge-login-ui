@@ -8,6 +8,7 @@ import type {
   EdgeWalletInfos,
   EthererumTransaction
 } from '../edge-types.js'
+import type { CurrencyWalletProxies } from '../protocol.js'
 import type { FrameState } from './frame-state.js'
 
 function hexToBuffer (hex: string): Buffer {
@@ -55,6 +56,29 @@ export function getWalletInfos (
       out[walletInfo.id].keys = {
         ethereumAddress: ethereumKeyToAddress(walletInfo.keys.ethereumKey)
       }
+    }
+  }
+  return out
+}
+
+/**
+ * Grabs the currency wallet objects off the account object.
+ */
+export async function getCurrencyWallets (
+  state: FrameState,
+  accountId: string
+): CurrencyWalletProxies {
+  const account = state.accounts[accountId]
+
+  const out = {}
+  for (const walletId of Object.keys(account.currencyWallets)) {
+    const address = await account.currencyWallets[walletId].getReceiveAddress(
+      {}
+    )
+
+    out[walletId] = {
+      balances: { ETH: account.currencyWallets[walletId].getBalance() },
+      address: address.publicAddress
     }
   }
   return out

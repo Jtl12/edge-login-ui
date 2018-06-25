@@ -1,6 +1,11 @@
 // @flow
 
-import type { EdgeAccount, EdgeContext, EdgeContextOptions } from 'edge-core-js'
+import type {
+  EdgeAccount,
+  EdgeContext,
+  EdgeContextOptions,
+  EdgeCorePluginFactory
+} from 'edge-core-js'
 import { makeContext } from 'edge-core-js'
 import postRobot from 'post-robot'
 import { base16 } from 'rfc4648'
@@ -53,11 +58,23 @@ async function makeFrameState (opts: ConnectionMessage): Promise<FrameState> {
     apiKey,
     appId,
     hideKeys,
+    pluginNames = [],
     vendorName = '',
     vendorImageUrl = '',
     clientDispatch
   } = opts
-  const context = await makeEdgeContext({ apiKey, appId })
+
+  // Load plugins:
+  const plugins: Array<EdgeCorePluginFactory> = []
+  for (const pluginName of pluginNames) {
+    if (pluginName === 'ethereum') {
+      const module = await import('edge-currency-ethereum')
+      plugins.push(module.ethereumCurrencyPluginFactory)
+    }
+  }
+
+  // Create the context:
+  const context = await makeEdgeContext({ apiKey, appId, plugins })
 
   return {
     accounts: {},

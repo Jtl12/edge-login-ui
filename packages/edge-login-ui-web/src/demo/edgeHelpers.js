@@ -23,6 +23,7 @@ export async function prepareContext (): Promise<EdgeUiContext> {
     apiKey: EDGE_API_KEY,
     appId: YOUR_APP_ID,
     assetsPath: EDGE_ASSETS_PATH,
+    pluginNames: ['ethereum'],
     vendorImageUrl: YOUR_APP_LOGO,
     vendorName: YOUR_APP_NAME
   }

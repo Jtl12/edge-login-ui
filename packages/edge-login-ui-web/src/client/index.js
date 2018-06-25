@@ -9,6 +9,8 @@ import type {
   EthererumTransaction
 } from '../edge-types.js'
 
+// Re-exports:
+export type { EdgeWalletInfo } from 'edge-core-js'
 export { makeEdgeUiContext } from './client-context.js'
 
 // context ------------------------------------------------------------
@@ -24,6 +26,7 @@ export type EdgeUiContextOptions = {
   callbacks?: EdgeUiContextCallbacks,
   hideKeys?: boolean,
   frameTimeout?: number,
+  pluginNames?: Array<string>,
   vendorImageUrl?: string,
   vendorName?: string
 }
@@ -41,8 +44,6 @@ export type EdgeUiContext = {
 }
 
 // account ------------------------------------------------------------
-
-export type { EdgeWalletInfo } from 'edge-core-js'
 
 export type EdgeManageWindowOptions = {
   +onClose?: () => mixed
@@ -64,6 +65,7 @@ export type EdgeUiAccount = {
   getFirstWalletInfo(type: string): EdgeWalletInfo | null,
 
   // Currency wallets:
+  currencyWallets: EdgeUiCurrencyWallets,
   createCurrencyWallet(type: string): Promise<mixed>,
 
   // Temporary solution for Ethereum apps, pending proper wallet API:
@@ -71,4 +73,15 @@ export type EdgeUiAccount = {
     walletId: string,
     transaction: EthererumTransaction
   ): Promise<string>
+}
+
+// wallets ------------------------------------------------------------
+
+export type EdgeUiCurrencyWallets = { [walletId: string]: EdgeUiCurrencyWallet }
+
+export type EdgeUiCurrencyWallet = {
+  address: string,
+  balances: {
+    [currencyCode: string]: string
+  }
 }

@@ -3,7 +3,11 @@
 import type { EdgeAccount } from 'edge-core-js'
 
 import type { FrameMessage } from '../protocol.js'
-import { getLocalUsers, getWalletInfos } from './frame-selectors.js'
+import {
+  getCurrencyWallets,
+  getLocalUsers,
+  getWalletInfos
+} from './frame-selectors.js'
 import type { FrameState } from './frame-state.js'
 import { updateView } from './View.js'
 
@@ -67,9 +71,25 @@ export async function handleLogin (state: FrameState, account: EdgeAccount) {
   const username = account.username
   const localUsers = await getLocalUsers(state)
   const walletInfos = getWalletInfos(state, accountId)
+  const currencyWallets = await getCurrencyWallets(state, accountId)
 
   return state.clientDispatch({
     type: 'login',
-    payload: { accountId, username, localUsers, walletInfos }
+    payload: { accountId, currencyWallets, localUsers, username, walletInfos }
+  })
+}
+
+/** onKeyListChanged */
+export async function handleWalletInfosChanged (
+  state: FrameState,
+  accountId: string
+) {
+  if (!state.accounts[accountId]) return
+  const walletInfos = getWalletInfos(state, accountId)
+  const currencyWallets = await getCurrencyWallets(state, accountId)
+
+  return state.clientDispatch({
+    type: 'wallet-list-changed',
+    payload: { accountId, currencyWallets, walletInfos }
   })
 }

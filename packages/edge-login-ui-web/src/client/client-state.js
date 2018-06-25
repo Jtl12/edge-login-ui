@@ -8,6 +8,7 @@ import type {
   ClientMessage,
   ConnectionMessage,
   ConnectionReply,
+  CurrencyWalletProxies,
   FrameCreateCurrencyWallet,
   FrameCreateWallet,
   FrameMessage,
@@ -23,7 +24,8 @@ import type { EdgeUiAccount, EdgeUiContextOptions } from './index.js'
  */
 export type AccountState = {
   username: string,
-  walletInfos: EdgeWalletInfos
+  walletInfos: EdgeWalletInfos,
+  currencyWallets: CurrencyWalletProxies
 }
 
 /**
@@ -64,8 +66,14 @@ function clientDispatch (state: ClientState, message: ClientMessage) {
     }
 
     case 'login': {
-      const { accountId, localUsers, username, walletInfos } = message.payload
-      state.accounts[accountId] = { username, walletInfos }
+      const {
+        accountId,
+        localUsers,
+        username,
+        currencyWallets,
+        walletInfos
+      } = message.payload
+      state.accounts[accountId] = { username, currencyWallets, walletInfos }
       state.localUsers = localUsers
       const account = makeAccountApi(state, accountId)
 
@@ -74,8 +82,13 @@ function clientDispatch (state: ClientState, message: ClientMessage) {
     }
 
     case 'wallet-list-changed': {
-      const { accountId, walletInfos } = message.payload
+      const { accountId, currencyWallets, walletInfos } = message.payload
+      if (!state.accounts[accountId]) {
+        console.warn(`Unknown account id ${accountId}`)
+        return
+      }
       state.accounts[accountId].walletInfos = walletInfos
+      state.accounts[accountId].currencyWallets = currencyWallets
       return
     }
   }
@@ -100,16 +113,19 @@ export function makeClientState (
     callbacks = {},
     hideKeys = false,
     frameTimeout = 15000,
+    pluginNames,
     vendorImageUrl,
     vendorName
   } = opts
   const { onError = onErrorNop } = callbacks
 
+  // eslint-disable-next-line prefer-const
   let state: ClientState
   const message: ConnectionMessage = {
     apiKey,
     appId,
     hideKeys,
+    pluginNames,
     vendorName,
     vendorImageUrl,
     clientDispatch: message => clientDispatch(state, message)

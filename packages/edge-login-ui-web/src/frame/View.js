@@ -2,12 +2,17 @@
 
 import 'edge-login-ui-react/lib/styles.css'
 
-import type { EdgeAccount } from 'edge-core-js'
+import type { EdgeAccount, EdgeAccountOptions } from 'edge-core-js'
 import { AccountScreen, LoginScreen } from 'edge-login-ui-react'
 import React, { Component } from 'react'
 import { render } from 'react-dom'
 
-import { handleClose, handleError, handleLogin } from './frame-actions.js'
+import {
+  handleClose,
+  handleError,
+  handleLogin,
+  handleWalletInfosChanged
+} from './frame-actions.js'
 import type { FrameState } from './frame-state.js'
 
 type ViewProps = {
@@ -19,10 +24,6 @@ type ViewProps = {
  * Shows the appropriate scene based on the current state.
  */
 class View extends Component<ViewProps> {
-  accountOptions = {
-    callbacks: {}
-  }
-
   onClose = () => handleClose(this.props.state)
   onError = (e: Error) => handleError(this.props.state, e)
   onLogin = (account: EdgeAccount) => handleLogin(this.props.state, account)
@@ -31,9 +32,22 @@ class View extends Component<ViewProps> {
     const { state } = this.props
 
     if (state.page === 'login') {
+      const accountId = `account${state.nextAccountId}` // OMG HACK!
+      const accountOptions: EdgeAccountOptions = {
+        callbacks: {
+          onKeyListChanged: () => {
+            handleWalletInfosChanged(state, accountId)
+          },
+
+          onBalanceChanged: walletId => {
+            handleWalletInfosChanged(state, accountId)
+          }
+        }
+      }
+
       return (
         <LoginScreen
-          accountOptions={this.accountOptions}
+          accountOptions={accountOptions}
           context={state.context}
           onClose={this.onClose}
           onError={this.onError}

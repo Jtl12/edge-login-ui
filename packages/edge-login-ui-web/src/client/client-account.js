@@ -5,7 +5,11 @@ import type { EdgeWalletInfo } from 'edge-core-js'
 import type { EthererumTransaction } from '../edge-types.js'
 import type { ClientState } from './client-state.js'
 import { showFrame } from './iframe.js'
-import type { EdgeManageWindowOptions, EdgeUiAccount } from './index.js'
+import type {
+  EdgeManageWindowOptions,
+  EdgeUiAccount,
+  EdgeUiCurrencyWallets
+} from './index.js'
 
 /**
  * Returns a context API object with all the required methods.
@@ -63,6 +67,17 @@ export function makeAccountApi (
       return null
     },
 
+    // Currency wallets:
+    get currencyWallets (): EdgeUiCurrencyWallets {
+      const out: EdgeUiCurrencyWallets = {}
+      for (const walletId of Object.keys(account.currencyWallets)) {
+        out[walletId] = {
+          address: account.currencyWallets[walletId].address,
+          balances: account.currencyWallets[walletId].balances
+        }
+      }
+      return out
+    },
     createCurrencyWallet (type: string): Promise<mixed> {
       return state
         .createCurrencyWallet(accountId, type)

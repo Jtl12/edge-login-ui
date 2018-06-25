@@ -13,7 +13,18 @@ export type PostRobotEvent<Data> = {
   source: Object
 }
 
-// client -------------------------------------------------------------------
+// wallets ------------------------------------------------------------------
+
+export type CurrencyWalletProxy = {
+  address: string,
+  balances: {
+    [currencyCode: string]: string // native amount
+  }
+}
+
+export type CurrencyWalletProxies = { [walletId: string]: CurrencyWalletProxy }
+
+// to client ----------------------------------------------------------------
 
 /** The current window was closed. */
 export type ClientClose = {
@@ -33,7 +44,8 @@ export type ClientLogin = {
     accountId: string,
     localUsers: EdgeUserInfos,
     username: string,
-    walletInfos: EdgeWalletInfos
+    walletInfos: EdgeWalletInfos,
+    currencyWallets: CurrencyWalletProxies
   }
 }
 
@@ -42,7 +54,8 @@ export type ClientWalletListChanged = {
   type: 'wallet-list-changed',
   payload: {
     accountId: string,
-    walletInfos: EdgeWalletInfos
+    walletInfos: EdgeWalletInfos,
+    currencyWallets: CurrencyWalletProxies
   }
 }
 
@@ -52,7 +65,7 @@ export type ClientMessage =
   | ClientLogin
   | ClientWalletListChanged
 
-// frame --------------------------------------------------------------------
+// to frame -----------------------------------------------------------------
 
 export type FrameLogout = {
   type: 'logout',
@@ -86,6 +99,7 @@ export type ConnectionMessage = {
   apiKey: string,
   appId: string,
   hideKeys: boolean,
+  pluginNames?: Array<string>,
   vendorName?: string,
   vendorImageUrl?: string,
 
